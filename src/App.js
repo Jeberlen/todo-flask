@@ -1,7 +1,34 @@
-import logo from './logo.svg';
-import './App.css';
+import { useState, useEffect } from "react";
+import logo from "./logo.svg";
+import "./App.css";
 
 function App() {
+  const [todos, setTodos] = useState({
+    todos: [],
+  });
+  const [description, setDescription] = useState("");
+  useEffect(() => {
+    fetch("/todos")
+      .then((res) => res.json())
+      .then((data) => setTodos(data));
+  }, []);
+
+  const onInputChanged = (e) => {
+    console.log(e.target.value);
+    setDescription(e.target.value);
+  };
+
+  const onAddTodo = () => {
+    console.log(description);
+    fetch("/todos", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ description: description }),
+    })
+      .then((res) => res.json())
+      .then((res) => setTodos(res));
+  };
+
   return (
     <div className="App">
       <header className="App-header">
@@ -9,14 +36,11 @@ function App() {
         <p>
           Edit <code>src/App.js</code> and save to reload.
         </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
+        {todos.todos.map((todo) => (
+          <p>{todo.description}</p>
+        ))}
+        <input type="text" onChange={onInputChanged} />
+        <button onClick={onAddTodo}>Add</button>
       </header>
     </div>
   );
